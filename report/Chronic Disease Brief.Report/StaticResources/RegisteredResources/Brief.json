@@ -1,0 +1,26 @@
+{
+  "name": "Brief",
+  "dataColors": [
+    "#0F6E6E",
+    "#D9822B",
+    "#5B7F95",
+    "#A3B86C",
+    "#8E6C8A",
+    "#C9A227",
+    "#4F9D9A",
+    "#9AA7AF"
+  ],
+  "foreground": "#1C2A33",
+  "background": "#FFFFFF",
+  "tableAccent": "#0F6E6E",
+  "textClasses": {
+    "label": {
+      "fontFace": "Segoe UI",
+      "color": "#4A5B66"
+    },
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "color": "#1C2A33"
+    }
+  }
+}

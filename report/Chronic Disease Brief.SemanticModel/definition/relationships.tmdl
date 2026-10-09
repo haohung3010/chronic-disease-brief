@@ -1,0 +1,8 @@
+relationship rates_geography
+	fromColumn: Rates.GeoCode
+	toColumn: Geography.GeoCode
+
+relationship rates_condition
+	fromColumn: Rates.ConditionId
+	toColumn: Condition.ConditionId
+

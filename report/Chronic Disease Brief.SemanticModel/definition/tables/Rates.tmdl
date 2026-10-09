@@ -1,0 +1,216 @@
+table Rates
+
+	/// The sex the rate measures use: the slicer's choice, or Both sexes.
+	measure 'Selected sex' = SELECTEDVALUE(Rates[Sex], "Both sexes")
+		displayFolder: Helpers
+
+	/// Most recent year with a reported rate, for the current condition and geography.
+	measure 'Latest year' = CALCULATE(MAX(Rates[Year]), REMOVEFILTERS(Rates[Year]), NOT ISBLANK(Rates[Rate]))
+		formatString: 0
+		displayFolder: Helpers
+
+	/// Ten years before the latest year.
+	measure 'Base year' = [Latest year] - 10
+		formatString: 0
+		displayFolder: Helpers
+
+	/// Age-standardized prevalence, percent.
+	measure 'Prevalence (ASR %)' =
+			VAR s = [Selected sex]
+			RETURN CALCULATE(AVERAGE(Rates[Rate]), Rates[MeasureType] = "Prevalence", Rates[Sex] = s)
+		formatString: 0.0
+		displayFolder: Rates
+
+	/// Age-standardized rate of newly identified cases per 100,000.
+	measure 'Incidence (ASR per 100k)' =
+			VAR s = [Selected sex]
+			RETURN CALCULATE(AVERAGE(Rates[Rate]), Rates[MeasureType] = "Incidence", Rates[Sex] = s)
+		formatString: #,0
+		displayFolder: Rates
+
+	measure 'Prevalence, latest' =
+			VAR y = [Latest year]
+			RETURN CALCULATE([Prevalence (ASR %)], Rates[Year] = y)
+		formatString: 0.0
+		displayFolder: Rates
+
+	/// The same rate for Canada, whatever geography is selected.
+	measure 'Prevalence, Canada' = CALCULATE([Prevalence (ASR %)], REMOVEFILTERS(Geography), Geography[GeoCode] = "00")
+		formatString: 0.0
+		displayFolder: Rates
+
+	measure 'Prevalence, Canada latest' =
+			VAR y = CALCULATE([Latest year], REMOVEFILTERS(Geography), Geography[GeoCode] = "00")
+			RETURN CALCULATE([Prevalence (ASR %)], REMOVEFILTERS(Geography), Geography[GeoCode] = "00", Rates[Year] = y)
+		formatString: 0.0
+		displayFolder: Rates
+
+	/// Percentage points above (+) or below (-) Canada, latest year.
+	measure 'Gap to Canada (pts)' =
+			VAR a = [Prevalence, latest]
+			VAR c = [Prevalence, Canada latest]
+			RETURN IF(NOT ISBLANK(a) && NOT ISBLANK(c), a - c)
+		formatString: +0.0;-0.0;0.0
+		displayFolder: Rates
+
+	measure 'Prevalence change, 10 yrs (pts)' =
+			VAR y = [Latest year]
+			VAR b = y - 10
+			RETURN CALCULATE([Prevalence (ASR %)], Rates[Year] = y) - CALCULATE([Prevalence (ASR %)], Rates[Year] = b)
+		formatString: +0.0;-0.0;0.0
+		displayFolder: Rates
+
+	measure 'Incidence, latest' =
+			VAR y = [Latest year]
+			RETURN CALCULATE([Incidence (ASR per 100k)], Rates[Year] = y)
+		formatString: #,0
+		displayFolder: Rates
+
+	/// Change in the age-standardized rate of new cases over ten years.
+	measure 'Incidence change, 10 yrs (%)' =
+			VAR y = [Latest year]
+			VAR b = y - 10
+			VAR now_ = CALCULATE([Incidence (ASR per 100k)], Rates[Year] = y)
+			VAR then_ = CALCULATE([Incidence (ASR per 100k)], Rates[Year] = b)
+			RETURN DIVIDE(now_ - then_, then_)
+		formatString: +0%;-0%;0%
+		displayFolder: Rates
+
+	/// Prevalent cases in the latest year: people, not a rate.
+	measure 'People living with it' =
+			VAR s = [Selected sex]
+			VAR y = [Latest year]
+			RETURN CALCULATE(SUM(Rates[Cases]), Rates[MeasureType] = "Prevalence", Rates[Sex] = s, Rates[Year] = y)
+		formatString: #,0
+		displayFolder: People
+
+	/// Growth in prevalent cases over ten years: ageing and population growth included, unlike the rate.
+	measure 'People added in 10 yrs' =
+			VAR s = [Selected sex]
+			VAR y = [Latest year]
+			VAR b = y - 10
+			VAR now_ = CALCULATE(SUM(Rates[Cases]), Rates[MeasureType] = "Prevalence", Rates[Sex] = s, Rates[Year] = y)
+			VAR then_ = CALCULATE(SUM(Rates[Cases]), Rates[MeasureType] = "Prevalence", Rates[Sex] = s, Rates[Year] = b)
+			RETURN now_ - then_
+		formatString: +#,0;-#,0;0
+		displayFolder: People
+
+	measure 'Growth in people, 10 yrs (%)' =
+			VAR s = [Selected sex]
+			VAR y = [Latest year]
+			VAR b = y - 10
+			VAR now_ = CALCULATE(SUM(Rates[Cases]), Rates[MeasureType] = "Prevalence", Rates[Sex] = s, Rates[Year] = y)
+			VAR then_ = CALCULATE(SUM(Rates[Cases]), Rates[MeasureType] = "Prevalence", Rates[Sex] = s, Rates[Year] = b)
+			RETURN DIVIDE(now_ - then_, then_)
+		formatString: +0%;-0%;0%
+		displayFolder: People
+
+	/// Newly identified cases in the latest year.
+	measure 'New cases, latest' =
+			VAR s = [Selected sex]
+			VAR y = [Latest year]
+			RETURN CALCULATE(SUM(Rates[Cases]), Rates[MeasureType] = "Incidence", Rates[Sex] = s, Rates[Year] = y)
+		formatString: #,0
+		displayFolder: People
+
+	/// Prevalent cases in each year.
+	measure 'People living with it, by year' =
+			VAR s = [Selected sex]
+			RETURN CALCULATE(SUM(Rates[Cases]), Rates[MeasureType] = "Prevalence", Rates[Sex] = s)
+		formatString: #,0
+		displayFolder: People
+
+	/// Rank among the 13 provinces and territories by latest age-standardized prevalence; 1 = highest.
+	measure 'Province rank' =
+			VAR cur = [Prevalence, latest]
+			RETURN IF(NOT ISBLANK(cur), RANKX(FILTER(ALL(Geography), Geography[Level] = "Province/territory"), [Prevalence, latest], cur, DESC, Dense))
+		formatString: 0
+		displayFolder: Rates
+
+	/// Highlights British Columbia in the province comparison.
+	measure 'Bar colour' = IF(SELECTEDVALUE(Geography[GeoShort]) = "BC", "#D9822B", "#8CC3BF")
+		displayFolder: Helpers
+
+	column ConditionId
+		dataType: int64
+		formatString: 0
+		isHidden
+		summarizeBy: none
+		sourceColumn: ConditionId
+
+	column GeoCode
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: GeoCode
+
+	column MeasureType
+		dataType: string
+		summarizeBy: none
+		sourceColumn: MeasureType
+
+	column Year
+		dataType: int64
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: Year
+
+	column FiscalYear
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FiscalYear
+
+	column Sex
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Sex
+
+	column AgeGroup
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AgeGroup
+
+	column Rate
+		dataType: double
+		formatString: 0.00
+		summarizeBy: none
+		sourceColumn: Rate
+
+	column CILow
+		dataType: double
+		formatString: 0.00
+		summarizeBy: none
+		sourceColumn: CILow
+
+	column CIHigh
+		dataType: double
+		formatString: 0.00
+		summarizeBy: none
+		sourceColumn: CIHigh
+
+	column Cases
+		dataType: int64
+		formatString: #,0
+		summarizeBy: none
+		sourceColumn: Cases
+
+	column Unit
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Unit
+
+	column Flag
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Flag
+
+	partition Rates = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "\rates.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"ConditionId", Int64.Type}, {"GeoCode", type text}, {"MeasureType", type text}, {"Year", Int64.Type}, {"FiscalYear", type text}, {"Sex", type text}, {"AgeGroup", type text}, {"Rate", type number}, {"CILow", type number}, {"CIHigh", type number}, {"Cases", Int64.Type}, {"Unit", type text}, {"Flag", type text}}, "en-US")
+				in
+				    Typed
+

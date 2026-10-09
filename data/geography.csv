@@ -1,0 +1,15 @@
+GeoCode,Geography,GeoShort,Level,GeoSort
+00,Canada,CAN,Canada,0
+10,Newfoundland and Labrador,NL,Province/territory,1
+11,Prince Edward Island,PE,Province/territory,2
+12,Nova Scotia,NS,Province/territory,3
+13,New Brunswick,NB,Province/territory,4
+24,Quebec,QC,Province/territory,5
+35,Ontario,ON,Province/territory,6
+46,Manitoba,MB,Province/territory,7
+47,Saskatchewan,SK,Province/territory,8
+48,Alberta,AB,Province/territory,9
+59,British Columbia,BC,Province/territory,10
+60,Yukon,YT,Province/territory,11
+61,Northwest Territories,NT,Province/territory,12
+62,Nunavut,NU,Province/territory,13

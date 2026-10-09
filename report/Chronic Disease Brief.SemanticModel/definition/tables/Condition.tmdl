@@ -1,0 +1,67 @@
+table Condition
+
+	column ConditionId
+		dataType: int64
+		formatString: 0
+		isHidden
+		summarizeBy: none
+		sourceColumn: ConditionId
+
+	column Condition
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Condition
+		sortByColumn: ConditionSort
+
+	column ConditionSort
+		dataType: int64
+		formatString: 0
+		isHidden
+		summarizeBy: none
+		sourceColumn: ConditionSort
+
+	column Specification
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Specification
+
+	column CaseDefinition
+		dataType: string
+		summarizeBy: none
+		sourceColumn: CaseDefinition
+
+	column Hospital
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Hospital
+
+	column PhysicianClaims
+		dataType: string
+		summarizeBy: none
+		sourceColumn: PhysicianClaims
+
+	column Prevalence
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Prevalence
+
+	column Incidence
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Incidence
+
+	column Ages
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Ages
+
+	partition Condition = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "\condition.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"ConditionId", Int64.Type}, {"Condition", type text}, {"ConditionSort", Int64.Type}, {"Specification", type text}, {"CaseDefinition", type text}, {"Hospital", type text}, {"PhysicianClaims", type text}, {"Prevalence", type text}, {"Incidence", type text}, {"Ages", type text}}, "en-US")
+				in
+				    Typed
+

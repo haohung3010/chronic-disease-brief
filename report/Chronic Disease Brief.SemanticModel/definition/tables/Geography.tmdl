@@ -1,0 +1,42 @@
+table Geography
+
+	column GeoCode
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: GeoCode
+
+	column Geography
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Geography
+		sortByColumn: GeoSort
+
+	column GeoShort
+		dataType: string
+		summarizeBy: none
+		sourceColumn: GeoShort
+		sortByColumn: GeoSort
+
+	column Level
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Level
+
+	column GeoSort
+		dataType: int64
+		formatString: 0
+		isHidden
+		summarizeBy: none
+		sourceColumn: GeoSort
+
+	partition Geography = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "\geography.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"GeoCode", type text}, {"Geography", type text}, {"GeoShort", type text}, {"Level", type text}, {"GeoSort", Int64.Type}}, "en-US")
+				in
+				    Typed
+

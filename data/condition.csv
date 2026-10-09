@@ -1,0 +1,6 @@
+ConditionId,Condition,ConditionSort,Specification,CaseDefinition,Hospital,PhysicianClaims,Prevalence,Incidence,Ages
+1,Diabetes,1,"Diabetes mellitus (types combined), excluding gestational diabetes","One or more hospital separation records, or two or more physician claims within two years",1+,2+ within 2 years,For life,First time,1+
+2,Hypertension,2,"Hypertension, excluding gestational hypertension","One or more hospital separation records, or two or more physician claims within two years",1+,2+ within 2 years,For life,First time,20+
+7,COPD,3,Chronic obstructive pulmonary disease (COPD),One or more hospital separation records or one or more physician claims,1+,1+,For life,First time,35+
+6,Asthma,4,Asthma,"One or more hospital separation records, or two or more physician claims within two years",1+,2+ within 2 years,For life,First time,1+
+16,Dementia,5,"Dementia, including Alzheimer disease","One or more hospital separation records; or three or more physician claims within two years, with at least 30 days between each claim; or one drug prescription or more",1+,"3+ within 2 years, 30 day gap between each claim",For life,First time,65+

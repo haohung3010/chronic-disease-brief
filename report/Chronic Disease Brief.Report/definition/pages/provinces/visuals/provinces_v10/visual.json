@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "name": "provinces_v10",
+  "position": {
+    "x": 640,
+    "y": 648,
+    "z": 10000,
+    "width": 616,
+    "height": 40,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Source: Public Health Agency of Canada, Canadian Chronic Disease Surveillance System (CCDSS), Public Health Infobase, read 8 October 2026. Rates are age-standardized; fiscal years (2023 = 2023-24). Open Government Licence - Canada.",
+                    "textStyle": {
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "8pt",
+                      "color": "#7C8B94"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
